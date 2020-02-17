@@ -1,7 +1,9 @@
+"""Library used in main.py"""
 import datetime
 import hashlib
 
 class Block:
+    """Block class"""
     blockNo = 0
     data = None
     next = None
@@ -11,9 +13,11 @@ class Block:
     timestamp = datetime.datetime.now()
 
     def __init__(self, data):
+        """Constructor"""
         self.data = data
 
     def hash(self):
+        """Data hashing function"""
         h = hashlib.sha256()
         h.update(
         str(self.nonce).encode('utf-8') +
@@ -25,19 +29,24 @@ class Block:
         return h.hexdigest()
 
     def __str__(self):
+        """Display function"""
         return "Block Hash: " + str(self.hash()) + "\nBlockNo: " + str(self.blockNo) + "\nBlock Data: " + str(self.data) + "\nHashes: " + str(self.nonce) + "\n--------------"
 
 class Blockchain:
-
-    diff = 20
+    """Blockchain class"""
+    
     maxNonce = 2**32
     target = 2 ** (256-diff)
 
     block = Block("Genesis")
     head = block
 
-    def add(self, block):
+    def __init__(self, difficulty):  
+        """Constructor"""  
+        self.diff = difficulty
 
+    def add(self, block):
+        """Add a block in this blockchain"""
         block.previous_hash = self.block.hash()
         block.blockNo = self.block.blockNo + 1
 
@@ -45,6 +54,7 @@ class Blockchain:
         self.block = self.block.next
 
     def mine(self, block):
+        """Determine the hash"""
         for n in range(self.maxNonce):
             if int(block.hash(), 16) <= self.target:
                 self.add(block)
@@ -52,12 +62,3 @@ class Blockchain:
                 break
             else:
                 block.nonce += 1
-
-blockchain = Blockchain()
-
-for n in range(10):
-    blockchain.mine(Block("Block " + str(n+1)))
-
-while blockchain.head != None:
-    print(blockchain.head)
-    blockchain.head = blockchain.head.next
